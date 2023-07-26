@@ -57,4 +57,14 @@ export class UsersService {
       throw new HttpException('ID doest not exist', HttpStatus.NOT_FOUND);
     }
   }
+  
+  deleteUser(id: string) {
+    validateID(id);
+    const userIndex = this.users.findIndex((user) => user.id === id);
+    if (userIndex >= 0) {
+      this.users.splice(userIndex, 1);
+    } else {
+      throw new HttpException('ID doest not exist', HttpStatus.NOT_FOUND);
+    }
+  }
 }
