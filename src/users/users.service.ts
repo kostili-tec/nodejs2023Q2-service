@@ -15,7 +15,16 @@ export class UsersService {
   }
 
   getUserById(id: string) {
-    return this.users.find((user) => user.id === id);
+    const isValidId = validate(id);
+    if (!isValidId)
+      throw new HttpException(
+        'userID is invalid (not uuid)',
+        HttpStatus.BAD_REQUEST,
+      );
+    const user = this.users.find((user) => user.id === id);
+    if (!user)
+      throw new HttpException('ID doest not exist', HttpStatus.NOT_FOUND);
+    else return this.users.find((user) => user.id === id);
   }
 
   createUser(dto: CreateUserDto) {
@@ -27,13 +36,18 @@ export class UsersService {
       version: 0,
     };
     this.users.push(newUser);
-    return newUser;
+    const showUser = Object.assign({}, newUser);
+    delete showUser.password;
+    return showUser;
   }
 
   updateUser(id: string, dto: UpdateUserDto) {
     const isValidUUID = validate(id);
     if (!isValidUUID || typeof id !== 'string') {
-      throw new HttpException('userID is invalid', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'userID is invalid (not uuid)',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     const userIndex = this.users.findIndex((user) => user.id === id);
     if (userIndex >= 0) {
