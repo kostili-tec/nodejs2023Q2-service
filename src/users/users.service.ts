@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { v4 as uuidv4, validate } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { User } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { HttpException } from '@nestjs/common/exceptions';
 import { HttpStatus } from '@nestjs/common/enums';
+
+import { validateID } from '../utils/validateID';
 
 @Injectable()
 export class UsersService {
@@ -15,12 +17,7 @@ export class UsersService {
   }
 
   getUserById(id: string) {
-    const isValidId = validate(id);
-    if (!isValidId)
-      throw new HttpException(
-        'userID is invalid (not uuid)',
-        HttpStatus.BAD_REQUEST,
-      );
+    validateID(id);
     const user = this.users.find((user) => user.id === id);
     if (!user)
       throw new HttpException('ID doest not exist', HttpStatus.NOT_FOUND);
@@ -42,13 +39,7 @@ export class UsersService {
   }
 
   updateUser(id: string, dto: UpdateUserDto) {
-    const isValidUUID = validate(id);
-    if (!isValidUUID || typeof id !== 'string') {
-      throw new HttpException(
-        'userID is invalid (not uuid)',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    validateID(id);
     const userIndex = this.users.findIndex((user) => user.id === id);
     if (userIndex >= 0) {
       const user = Object.assign({}, this.users[userIndex]);
