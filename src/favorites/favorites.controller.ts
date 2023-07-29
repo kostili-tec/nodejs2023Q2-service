@@ -1,5 +1,4 @@
 import {
-  Body,
   Controller,
   Delete,
   Get,
@@ -7,7 +6,6 @@ import {
   HttpStatus,
   Param,
   Post,
-  Put,
 } from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
 
@@ -17,11 +15,38 @@ export class FavoritesController {
 
   @Get()
   getAll() {
-    return this.favoritesService.getAllFavorites;
+    return this.favoritesService.getAllFavorites();
   }
 
   @Post('/artist/:id')
   createArtist(@Param('id') id: string) {
-    return this.createArtist(id);
+    return this.favoritesService.addArtistToFavorites(id);
+  }
+
+  @Delete('/artist/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteArtist(@Param('id') id: string) {
+    return this.favoritesService.removeArtistFromFavorites(id);
+  }
+
+  @Post('/album/:id')
+  createAlbum(@Param('id') id: string) {
+    return this.favoritesService.addAlbumToFavorites(id);
+  }
+
+  @Delete('/album/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteAlbum(@Param('id') id: string) {
+    return this.favoritesService.removeAlbumFromFavorites(id);
+  }
+  @Post('/track/:id')
+  createTrack(@Param('id') id: string) {
+    return this.favoritesService.addTrackToFavorites(id);
+  }
+
+  @Delete('/track/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteTrack(@Param('id') id: string) {
+    return this.favoritesService.removeTrackFromFavorites(id);
   }
 }
