@@ -1,12 +1,18 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { validateID } from '../utils/validateID';
 import { Album } from './interfaces/album.interface';
 import { CreateAlbumDto } from './dto/create-album.dto';
+import { TrackService } from '../track/track.service';
 
 @Injectable()
 export class AlbumService {
   private readonly albums: Album[] = [];
+
+  constructor(
+    @Inject(TrackService)
+    private readonly trackService: TrackService,
+  ) {}
 
   getAllAlbums() {
     return this.albums;
@@ -53,8 +59,16 @@ export class AlbumService {
     const albumIndex = this.albums.findIndex((album) => album.id === id);
     if (albumIndex >= 0) {
       this.albums.splice(albumIndex, 1);
+      this.trackService.setAlbumIdToNull(id);
     } else {
       throw new NotFoundException('ID doest not exist');
     }
+  }
+
+  setArtistIdToNull(artistId: string) {
+    const artistIndex = this.albums.findIndex(
+      (album) => album.artistId === artistId,
+    );
+    if (artistIndex >= 0) this.albums[artistIndex].artistId = null;
   }
 }

@@ -62,4 +62,18 @@ export class TrackService {
       throw new NotFoundException('ID doest not exist');
     }
   }
+
+  setAlbumIdToNull(albumID: string) {
+    const trackIndex = this.tracks.findIndex(
+      (track) => track.albumId === albumID,
+    );
+    if (trackIndex >= 0) this.tracks[trackIndex].albumId = null;
+  }
+
+  setArtistIdToNull(artistId: string) {
+    const artistIndex = this.tracks.findIndex(
+      (track) => track.artistId === artistId,
+    );
+    if (artistIndex >= 0) this.tracks[artistIndex].artistId = null;
+  }
 }

@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import * as dotenv from 'dotenv';
 import { ValidationPipe } from '@nestjs/common/pipes';
-import { SwaggerModule, DocumentBuilder, OpenAPIObject } from '@nestjs/swagger';
+import { SwaggerModule, OpenAPIObject } from '@nestjs/swagger';
 import * as YAML from 'js-yaml';
 import * as fs from 'fs/promises';
 import * as path from 'path';
