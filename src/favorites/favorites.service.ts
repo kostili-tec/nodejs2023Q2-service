@@ -26,17 +26,35 @@ export class FavoritesService {
 
   getAllFavorites() {
     const fulledFavorites: FavoritesResponse = {
-      albums: this.favorites.albums.map((albumId) =>
-        this.albumService.getAlbumById(albumId),
-      ),
-      artists: this.favorites.artists.map((artistID) =>
-        this.artistService.getArtistById(artistID),
-      ),
-      tracks: this.favorites.tracks.map((trackID) =>
-        this.trackService.getTrackById(trackID),
-      ),
+      albums: this.buildFavsAlbums(),
+      artists: this.buildFavsArtists(),
+      tracks: this.buildFavsTracks(),
     };
     return fulledFavorites;
+  }
+
+  buildFavsAlbums() {
+    if (this.favorites.albums.length > 0) {
+      return this.favorites.albums.map((albumId) =>
+        this.albumService.getAlbumById(albumId),
+      );
+    } else return [];
+  }
+
+  buildFavsArtists() {
+    if (this.favorites.albums.length > 0) {
+      return this.favorites.artists.map((artistID) =>
+        this.artistService.getArtistById(artistID),
+      );
+    } else return [];
+  }
+
+  buildFavsTracks() {
+    if (this.favorites.tracks.length > 0) {
+      return this.favorites.tracks.map((trackID) =>
+        this.trackService.getTrackById(trackID),
+      );
+    } else return [];
   }
 
   addArtistToFavorites(artistID: string) {
@@ -98,5 +116,26 @@ export class FavoritesService {
     } else {
       throw new NotFoundException('ID doest not exist');
     }
+  }
+
+  checkFavsAlbum(albumID: string) {
+    const isExistAlbum = this.favorites.albums.find(
+      (album) => album === albumID,
+    );
+    if (isExistAlbum) this.removeAlbumFromFavorites(albumID);
+  }
+
+  checkFavsArtist(artistID: string) {
+    const isExistArtist = this.favorites.artists.find(
+      (artist) => artist === artistID,
+    );
+    if (isExistArtist) this.removeArtistFromFavorites(artistID);
+  }
+
+  checkFavsTrack(trackID: string) {
+    const isExistTrack = this.favorites.tracks.find(
+      (track) => track === trackID,
+    );
+    if (isExistTrack) this.removeTrackFromFavorites(trackID);
   }
 }
