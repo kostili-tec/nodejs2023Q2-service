@@ -3,20 +3,12 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { validateID } from '../utils/validateID';
-import { TrackService } from '../track/track.service';
-import { Artist } from './interfaces/artist.interface';
-import { AlbumService } from '../album/album.service';
 import { SharedService } from '../shared/shared.service';
+import { Artist } from './interfaces/artist.interface';
 
 @Injectable()
 export class ArtistService {
-
   constructor(
-    @Inject(TrackService)
-    private readonly trackService: TrackService,
-
-    @Inject(AlbumService)
-    private readonly albumService: AlbumService,
     @Inject(SharedService)
     private readonly sharedService: SharedService,
   ) {}

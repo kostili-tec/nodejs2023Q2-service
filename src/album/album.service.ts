@@ -3,24 +3,24 @@ import { v4 as uuidv4 } from 'uuid';
 import { validateID } from '../utils/validateID';
 import { Album } from './interfaces/album.interface';
 import { CreateAlbumDto } from './dto/create-album.dto';
-import { TrackService } from '../track/track.service';
+import { SharedService } from '../shared/shared.service';
 
 @Injectable()
 export class AlbumService {
   private readonly albums: Album[] = [];
 
   constructor(
-    @Inject(TrackService)
-    private readonly trackService: TrackService,
+    @Inject(SharedService)
+    private readonly sharedService: SharedService,
   ) {}
 
   getAllAlbums() {
-    return this.albums;
+    return this.sharedService.getAllAlbums();
   }
 
   getAlbumById(id: string) {
     validateID(id);
-    const album = this.albums.find((album) => album.id == id);
+    const album = this.sharedService.getAlbumById(id);
     if (!album) throw new NotFoundException('ID doest not exist');
     else return album;
   }
@@ -35,34 +35,21 @@ export class AlbumService {
     if (!artistId) {
       newAlbum.artistId = null;
     }
-    this.albums.push(newAlbum);
+    this.sharedService.addAlbum(newAlbum);
     return newAlbum;
   }
 
   updateAlbum(id: string, dto: CreateAlbumDto) {
     validateID(id);
-    const albumIndex = this.albums.findIndex((album) => album.id === id);
-    if (albumIndex >= 0) {
-      const { artistId, name, year } = dto;
-      const album = this.albums[albumIndex];
-      album.artistId = artistId;
-      album.name = name;
-      album.year = year;
-      return album;
-    } else {
-      throw new NotFoundException('ID doest not exist');
-    }
+    const updatedAlbum = this.sharedService.updateAlbum(id, dto);
+    if (updatedAlbum) return updatedAlbum;
+    else throw new NotFoundException('ID doest not exist');
   }
 
   deleteAlbum(id: string) {
     validateID(id);
-    const albumIndex = this.albums.findIndex((album) => album.id === id);
-    if (albumIndex >= 0) {
-      this.albums.splice(albumIndex, 1);
-      this.trackService.setAlbumIdToNull(id);
-    } else {
-      throw new NotFoundException('ID doest not exist');
-    }
+    const deleteAlbum = this.sharedService.deleteAlbum(id);
+    if (!deleteAlbum) throw new NotFoundException('ID doest not exist');
   }
 
   setArtistIdToNull(artistId: string) {
