@@ -11,7 +11,6 @@ import { TrackService } from './track/track.service';
 import { TrackController } from './track/track.controller';
 import { FavoritesController } from './favorites/favorites.controller';
 import { FavoritesService } from './favorites/favorites.service';
-import { TrackModule } from './track/track.module';
 import { SharedService } from './shared/shared.service';
 import { SharedModule } from './shared/shared.module';
 
@@ -33,6 +32,6 @@ import { SharedModule } from './shared/shared.module';
     FavoritesService,
     SharedService,
   ],
-  imports: [TrackModule, SharedModule],
+  imports: [SharedModule],
 })
 export class AppModule {}

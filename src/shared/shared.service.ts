@@ -5,6 +5,7 @@ import { Track } from '../track/interfaces/track.interfase';
 import { Favorites } from '../favorites/interfaces/favorites.interface';
 import { CreateArtistDto } from '../artist/dto/create-artist.dto';
 import { CreateAlbumDto } from '../album/dto/create-album.dto';
+import { CreateTrackDto } from '../track/dto/create-track.dto';
 
 @Injectable()
 export class SharedService {
@@ -43,8 +44,8 @@ export class SharedService {
     const artistIndex = this.artists.findIndex((artist) => artist.id === id);
     if (artistIndex >= 0) {
       this.artists.splice(artistIndex, 1);
-      this.seTracktArtistIdToNull(id);
-      this.setTrackAlbumIdToNull(id);
+      this.setTracktArtistIdToNull(id);
+      this.setAlbumsArtistIdToNull(id);
       return true;
     } else return false;
   }
@@ -84,7 +85,40 @@ export class SharedService {
     }
   }
 
-  seTracktArtistIdToNull(artistId: string) {
+  addTrack(track: Track) {
+    this.tracks.push(track);
+  }
+
+  getAllTracks() {
+    return this.tracks;
+  }
+
+  getTrackById(id: string) {
+    return this.tracks.find((track) => track.id == id);
+  }
+
+  updateTrack(id: string, dto: CreateTrackDto) {
+    const trackIndex = this.tracks.findIndex((track) => track.id === id);
+    if (trackIndex >= 0) {
+      const { artistId, name, albumId, duration } = dto;
+      const track = this.tracks[trackIndex];
+      track.artistId = artistId;
+      track.name = name;
+      track.albumId = albumId;
+      track.duration = duration;
+      return track;
+    }
+  }
+
+  deleteTrack(id: string) {
+    const trackIndex = this.tracks.findIndex((track) => track.id === id);
+    if (trackIndex >= 0) {
+      this.tracks.splice(trackIndex, 1);
+      return true;
+    } else return false;
+  }
+
+  setTracktArtistIdToNull(artistId: string) {
     const artistIndex = this.tracks.findIndex(
       (track) => track.artistId === artistId,
     );
