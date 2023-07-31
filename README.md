@@ -1,31 +1,34 @@
 # Home Library Service
 
-## Prerequisites
+## Installation
 
-- Git - [Download & Install Git](https://git-scm.com/downloads).
-- Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
+To get started with the project, follow these steps:
 
-## Downloading
+1. Clone the repository:
+   ```
+   git clone https://github.com/kostili-tec/nodejs2023Q2-service.git
+   ```
+2. Switch branch 
+   ```
+   git switch develop
+   ```
+3. Install dependencies:
+   ```
+   npm install
+   ```
 
-```
-git clone {repository URL}
-```
+## Running the Application
 
-## Installing NPM modules
+To run the application, follow the instructions below:
 
-```
-npm install
-```
+1. To check the "PORT value is stored into .env file" feature, you need to create `.development.env` and `.production.env` files.
+2. In each file, specify the desired port number, for example: `PORT=4000` (default).
 
-## Running application
+After completing the steps above, you can start the application using either of the following commands:
+- For production mode: `npm start`
+- For development mode: `npm run start:dev`
 
-```
-npm start
-```
-
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
+The Swagger documentation is available at: `http://localhost:PORT/docs`, where the `PORT` value is taken from the `.env` files, with the default value being `4000`.
 
 ## Testing
 
@@ -64,9 +67,3 @@ npm run lint
 ```
 npm run format
 ```
-
-### Debugging in VSCode
-
-Press <kbd>F5</kbd> to debug.
-
-For more information, visit: https://code.visualstudio.com/docs/editor/debugging
