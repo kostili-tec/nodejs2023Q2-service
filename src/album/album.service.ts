@@ -50,6 +50,7 @@ export class AlbumService {
     validateID(id);
     const deleteAlbum = this.sharedService.deleteAlbum(id);
     if (!deleteAlbum) throw new NotFoundException('ID doest not exist');
+    else this.sharedService.checkFavsAlbum(id);
   }
 
   setArtistIdToNull(artistId: string) {

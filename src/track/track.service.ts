@@ -52,5 +52,6 @@ export class TrackService {
     validateID(id);
     const deleteTrack = this.sharedService.deleteTrack(id);
     if (!deleteTrack) throw new NotFoundException('ID doest not exist');
+    else this.sharedService.checkFavsTrack(id);
   }
 }

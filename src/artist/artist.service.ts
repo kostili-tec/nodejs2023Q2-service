@@ -47,5 +47,6 @@ export class ArtistService {
     validateID(id);
     const deleteArtist = this.sharedService.deleteArtist(id);
     if (!deleteArtist) throw new NotFoundException('ID doest not exist');
+    else this.sharedService.checkFavsArtist(id);
   }
 }

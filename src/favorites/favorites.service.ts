@@ -1,9 +1,13 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { AlbumService } from '../album/album.service';
-import { ArtistService } from '../artist/artist.service';
-import { TrackService } from '../track/track.service';
-import { Favorites, FavoritesResponse } from './interfaces/favorites.interface';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
+
 import { validateID } from '../utils/validateID';
+import { SharedService } from '../shared/shared.service';
+import { Favorites } from './interfaces/favorites.interface';
 
 @Injectable()
 export class FavoritesService {
@@ -14,108 +18,57 @@ export class FavoritesService {
   };
 
   constructor(
-    @Inject(ArtistService)
-    private readonly artistService: ArtistService,
-
-    @Inject(AlbumService)
-    private readonly albumService: AlbumService,
-
-    @Inject(TrackService)
-    private readonly trackService: TrackService,
+    @Inject(SharedService)
+    private readonly sharedService: SharedService,
   ) {}
 
   getAllFavorites() {
-    const fulledFavorites: FavoritesResponse = {
-      albums: this.buildFavsAlbums(),
-      artists: this.buildFavsArtists(),
-      tracks: this.buildFavsTracks(),
-    };
-    return fulledFavorites;
-  }
-
-  buildFavsAlbums() {
-    if (this.favorites.albums.length > 0) {
-      return this.favorites.albums.map((albumId) =>
-        this.albumService.getAlbumById(albumId),
-      );
-    } else return [];
-  }
-
-  buildFavsArtists() {
-    if (this.favorites.albums.length > 0) {
-      return this.favorites.artists.map((artistID) =>
-        this.artistService.getArtistById(artistID),
-      );
-    } else return [];
-  }
-
-  buildFavsTracks() {
-    if (this.favorites.tracks.length > 0) {
-      return this.favorites.tracks.map((trackID) =>
-        this.trackService.getTrackById(trackID),
-      );
-    } else return [];
+    return this.sharedService.getAllFavorites();
   }
 
   addArtistToFavorites(artistID: string) {
     validateID(artistID);
-    const artist = this.artistService.getArtistById(artistID);
-    if (artist) this.favorites.artists.push(artist.id);
-    return artist;
+    const artist = this.sharedService.addFavoriteArtist(artistID);
+    if (artist) {
+      this.favorites.artists.push(artist.id);
+      return artist;
+    } else throw new UnprocessableEntityException();
   }
 
   addAlbumToFavorites(albumID: string) {
     validateID(albumID);
-    const album = this.albumService.getAlbumById(albumID);
+    const album = this.sharedService.addFavoriteAlbum(albumID);
     if (album) {
       this.favorites.albums.push(album.id);
       return album;
-    }
+    } else throw new UnprocessableEntityException();
   }
 
   addTrackToFavorites(trackId: string) {
-    // validateID(trackId);
-    const track = this.trackService.getTrackById(trackId);
+    validateID(trackId);
+    const track = this.sharedService.addFavoriteTrack(trackId);
     if (track) {
       this.favorites.tracks.push(track.id);
       return track;
-    }
+    } else throw new UnprocessableEntityException();
   }
 
   removeArtistFromFavorites(artistID: string) {
     validateID(artistID);
-    const artistIndex = this.favorites.artists.findIndex(
-      (value) => value === artistID,
-    );
-    if (artistIndex >= 0) {
-      this.favorites.artists.splice(artistIndex, 1);
-    } else {
-      throw new NotFoundException('ID doest not exist');
-    }
+    const removedArtist = this.sharedService.removeFavoriteArtist(artistID);
+    if (!removedArtist) throw new NotFoundException('ID doest not exist');
   }
 
   removeAlbumFromFavorites(albumID: string) {
     validateID(albumID);
-    const albumIndex = this.favorites.albums.findIndex(
-      (value) => value === albumID,
-    );
-    if (albumIndex >= 0) {
-      this.favorites.artists.splice(albumIndex, 1);
-    } else {
-      throw new NotFoundException('ID doest not exist');
-    }
+    const removedAlbum = this.sharedService.removeFavoriteAlbum(albumID);
+    if (!removedAlbum) throw new NotFoundException('ID doest not exist');
   }
 
   removeTrackFromFavorites(trackID: string) {
     validateID(trackID);
-    const trackIndex = this.favorites.tracks.findIndex(
-      (value) => value === trackID,
-    );
-    if (trackIndex >= 0) {
-      this.favorites.artists.splice(trackIndex, 1);
-    } else {
-      throw new NotFoundException('ID doest not exist');
-    }
+    const removedTrack = this.sharedService.removeFavoriteTrack(trackID);
+    if (!removedTrack) throw new NotFoundException('ID doest not exist');
   }
 
   checkFavsAlbum(albumID: string) {

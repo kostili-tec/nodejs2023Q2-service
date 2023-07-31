@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { Album } from '../album/interfaces/album.interface';
 import { Artist } from '../artist/interfaces/artist.interface';
 import { Track } from '../track/interfaces/track.interfase';
-import { Favorites } from '../favorites/interfaces/favorites.interface';
+import {
+  Favorites,
+  FavoritesResponse,
+} from '../favorites/interfaces/favorites.interface';
 import { CreateArtistDto } from '../artist/dto/create-artist.dto';
 import { CreateAlbumDto } from '../album/dto/create-album.dto';
 import { CreateTrackDto } from '../track/dto/create-track.dto';
@@ -116,6 +119,110 @@ export class SharedService {
       this.tracks.splice(trackIndex, 1);
       return true;
     } else return false;
+  }
+
+  getAllFavorites() {
+    const fulledFavorites: FavoritesResponse = {
+      albums: this.buildFavsAlbums(),
+      artists: this.buildFavsArtists(),
+      tracks: this.buildFavsTracks(),
+    };
+    return fulledFavorites;
+  }
+
+  buildFavsAlbums() {
+    if (this.favorites.albums.length > 0) {
+      return this.favorites.albums.map((albumId) => this.getAlbumById(albumId));
+    } else return [];
+  }
+
+  buildFavsArtists() {
+    if (this.favorites.artists.length > 0) {
+      return this.favorites.artists.map((artistID) =>
+        this.getArtistByID(artistID),
+      );
+    } else return [];
+  }
+
+  buildFavsTracks() {
+    if (this.favorites.tracks.length > 0) {
+      return this.favorites.tracks.map((trackID) => this.getTrackById(trackID));
+    } else return [];
+  }
+
+  addFavoriteArtist(artistID: string) {
+    const findArtist = this.getArtistByID(artistID);
+    if (findArtist) {
+      this.favorites.artists.push(findArtist.id);
+      return findArtist;
+    }
+  }
+
+  addFavoriteAlbum(albumID: string) {
+    const findAlbum = this.getAlbumById(albumID);
+    if (findAlbum) {
+      this.favorites.albums.push(findAlbum.id);
+      return findAlbum;
+    }
+  }
+
+  addFavoriteTrack(trackID: string) {
+    const findTrack = this.getTrackById(trackID);
+    if (findTrack) {
+      this.favorites.tracks.push(findTrack.id);
+      return findTrack;
+    }
+  }
+
+  removeFavoriteArtist(artistID: string) {
+    const artistIndex = this.favorites.artists.findIndex(
+      (value) => value === artistID,
+    );
+    if (artistIndex >= 0) {
+      this.favorites.artists.splice(artistIndex, 1);
+      return true;
+    }
+  }
+
+  removeFavoriteAlbum(albumID: string) {
+    const albumIndex = this.favorites.albums.findIndex(
+      (value) => value === albumID,
+    );
+    if (albumIndex >= 0) {
+      this.favorites.albums.splice(albumIndex, 1);
+      return true;
+    }
+  }
+
+  removeFavoriteTrack(trackID: string) {
+    const trackIndex = this.favorites.tracks.findIndex(
+      (value) => value === trackID,
+    );
+    if (trackIndex >= 0) {
+      this.favorites.tracks.splice(trackIndex, 1);
+      return true;
+    }
+  }
+
+  checkFavsAlbum(albumID: string) {
+    const isExistAlbum = this.favorites.albums.find(
+      (album) => album === albumID,
+    );
+    if (isExistAlbum) this.removeFavoriteAlbum(albumID);
+  }
+
+  checkFavsArtist(artistID: string) {
+    const isExistArtist = this.favorites.artists.find(
+      (artist) => artist === artistID,
+    );
+    if (isExistArtist) this.removeFavoriteArtist(artistID);
+  }
+
+  checkFavsTrack(trackID: string) {
+    const isExistTrack = this.favorites.tracks.find(
+      (track) => track === trackID,
+    );
+    if (isExistTrack) this.removeFavoriteTrack(trackID);
   }
 
   setTracktArtistIdToNull(artistId: string) {
