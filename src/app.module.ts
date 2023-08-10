@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersService } from './users/users.service';
-import { UsersController } from './users/users.controller';
 import { ArtistController } from './artist/artist.controller';
 import { ArtistService } from './artist/artist.service';
 import { AlbumService } from './album/album.service';
@@ -13,11 +11,13 @@ import { FavoritesController } from './favorites/favorites.controller';
 import { FavoritesService } from './favorites/favorites.service';
 import { SharedService } from './shared/shared.service';
 import { SharedModule } from './shared/shared.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './users/user.entity';
+import { UsersModule } from './users/users.module';
 
 @Module({
   controllers: [
     AppController,
-    UsersController,
     ArtistController,
     AlbumController,
     TrackController,
@@ -25,13 +25,25 @@ import { SharedModule } from './shared/shared.module';
   ],
   providers: [
     AppService,
-    UsersService,
     ArtistService,
     AlbumService,
     TrackService,
     FavoritesService,
     SharedService,
   ],
-  imports: [SharedModule],
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',
+      password: 'root',
+      database: 'rest-service-db',
+      entities: [User],
+      synchronize: true,
+    }),
+    SharedModule,
+    UsersModule,
+  ],
 })
 export class AppModule {}
