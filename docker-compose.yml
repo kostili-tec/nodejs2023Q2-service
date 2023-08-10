@@ -1,17 +1,17 @@
 version: '3.8'
 
 services:
-  rest-app:
+  api:
     build:
       dockerfile: Dockerfile
       context: .
-      # target: development
+      # Only will build development stage from our dockerfile
+      target: development
     volumes:
-      - .:/src
+      - .:/usr/src/app
     env_file:
-      - .development.env
-
+    - .development.env
+    # Run a command against the development stage of the image
     command: npm run start:dev
     ports:
       - 4000:4000
-    
