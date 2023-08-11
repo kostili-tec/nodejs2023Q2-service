@@ -7,12 +7,15 @@ import { CreateArtistDto } from './dto/create-artist.dto';
 import { validateID } from '../utils/validateID';
 import { Artist } from './artist.entity';
 import { Artist as ArtistInterface } from './interfaces/artist.interface';
+import { Album } from '../album/album.entity';
 
 @Injectable()
 export class ArtistService {
   constructor(
     @InjectRepository(Artist)
     private artistRepository: Repository<Artist>,
+    @InjectRepository(Album)
+    private readonly albumRepository: Repository<Album>,
   ) {}
 
   async getAllArtists() {
@@ -51,10 +54,26 @@ export class ArtistService {
 
   async deleteArtist(id: string) {
     validateID(id);
-    const findArtist = await this.artistRepository.findOneBy({ id });
 
-    if (findArtist) {
-      await this.artistRepository.delete({ id });
-    } else throw new NotFoundException('ID doest not exist');
+    const artist = await this.artistRepository.findOneBy({ id });
+
+    if (!artist) {
+      throw new NotFoundException('Artist not found');
+    }
+
+    const albumsToUpdate = await this.albumRepository.find({
+      where: { artistId: id },
+    });
+
+    if (albumsToUpdate.length > 0) {
+      await Promise.all(
+        albumsToUpdate.map((album) => {
+          album.artistId = null;
+          return this.albumRepository.save(album);
+        }),
+      );
+    }
+
+    await this.artistRepository.remove(artist);
   }
 }
