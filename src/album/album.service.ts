@@ -1,62 +1,68 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { validateID } from '../utils/validateID';
-import { Album } from './interfaces/album.interface';
+import { Album as AlbumInteface } from './interfaces/album.interface';
 import { CreateAlbumDto } from './dto/create-album.dto';
-import { SharedService } from '../shared/shared.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Album } from './album.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AlbumService {
-  private readonly albums: Album[] = [];
-
   constructor(
-    @Inject(SharedService)
-    private readonly sharedService: SharedService,
+    @InjectRepository(Album)
+    private albumRepository: Repository<Album>,
   ) {}
 
-  getAllAlbums() {
-    return this.sharedService.getAllAlbums();
+  async getAllAlbums() {
+    return await this.albumRepository.find();
   }
 
-  getAlbumById(id: string) {
+  async getAlbumById(id: string) {
     validateID(id);
-    const album = this.sharedService.getAlbumById(id);
+    const album = await this.albumRepository.findOneBy({ id });
     if (!album) throw new NotFoundException('ID doest not exist');
     else return album;
   }
 
-  createAlbum(dto: CreateAlbumDto) {
+  async createAlbum(dto: CreateAlbumDto) {
     const { artistId } = dto;
     const id = uuidv4();
-    const newAlbum: Album = {
+    const newAlbum: AlbumInteface = {
       ...dto,
       id,
     };
     if (!artistId) {
       newAlbum.artistId = null;
     }
-    this.sharedService.addAlbum(newAlbum);
+    await this.albumRepository.insert(newAlbum);
     return newAlbum;
   }
 
-  updateAlbum(id: string, dto: CreateAlbumDto) {
+  async updateAlbum(id: string, dto: CreateAlbumDto) {
     validateID(id);
-    const updatedAlbum = this.sharedService.updateAlbum(id, dto);
-    if (updatedAlbum) return updatedAlbum;
-    else throw new NotFoundException('ID doest not exist');
+    const updatedAlbum = await this.albumRepository.findOneBy({ id });
+    if (updatedAlbum) {
+      const { artistId, name, year } = dto;
+      updatedAlbum.artistId = artistId;
+      updatedAlbum.name = name;
+      updatedAlbum.year = year;
+      await this.albumRepository.save(updatedAlbum);
+      return updatedAlbum;
+    } else throw new NotFoundException('ID doest not exist');
   }
 
-  deleteAlbum(id: string) {
+  async deleteAlbum(id: string) {
     validateID(id);
-    const deleteAlbum = this.sharedService.deleteAlbum(id);
+    const deleteAlbum = await this.albumRepository.findOneBy({ id });
     if (!deleteAlbum) throw new NotFoundException('ID doest not exist');
-    else this.sharedService.checkFavsAlbum(id);
+    else await this.albumRepository.delete({ id });
   }
 
-  setArtistIdToNull(artistId: string) {
+  /*   setArtistIdToNull(artistId: string) {
     const artistIndex = this.albums.findIndex(
       (album) => album.artistId === artistId,
     );
     if (artistIndex >= 0) this.albums[artistIndex].artistId = null;
-  }
+  } */
 }

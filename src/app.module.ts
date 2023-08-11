@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AlbumService } from './album/album.service';
-import { AlbumController } from './album/album.controller';
 import { TrackService } from './track/track.service';
 import { TrackController } from './track/track.controller';
 import { FavoritesController } from './favorites/favorites.controller';
@@ -14,23 +12,12 @@ import { User } from './users/user.entity';
 import { UsersModule } from './users/users.module';
 import { ArtistModule } from './artist/artist.module';
 import { Artist } from './artist/artist.entity';
+import { Album } from './album/album.entity';
+import { AlbumModule } from './album/album.module';
 
 @Module({
-  controllers: [
-    AppController,
-
-    AlbumController,
-    TrackController,
-    FavoritesController,
-  ],
-  providers: [
-    AppService,
-
-    AlbumService,
-    TrackService,
-    FavoritesService,
-    SharedService,
-  ],
+  controllers: [AppController, TrackController, FavoritesController],
+  providers: [AppService, TrackService, FavoritesService, SharedService],
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -39,12 +26,13 @@ import { Artist } from './artist/artist.entity';
       username: 'postgres',
       password: 'root',
       database: 'rest-service-db',
-      entities: [User, Artist],
+      entities: [User, Artist, Album],
       synchronize: true,
     }),
     SharedModule,
     UsersModule,
     ArtistModule,
+    AlbumModule,
   ],
 })
 export class AppModule {}
