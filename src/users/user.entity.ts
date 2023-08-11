@@ -15,8 +15,8 @@ export class User {
   version: number; // integer number, increments on update
 
   @Column('bigint')
-  createdAt: number; // timestamp of creation
+  createdAt: number | Date; // timestamp of creation
 
   @Column('bigint')
-  updatedAt: number; // timestamp of last update
+  updatedAt: number | Date; // timestamp of last update
 }

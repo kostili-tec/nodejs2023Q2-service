@@ -14,20 +14,20 @@ import { User } from './user.entity';
 
 @Injectable()
 export class UsersService {
-  private readonly users: UserInterface[] = [];
-
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
   ) {}
 
-  getAllUsers(): Promise<User[]> {
-    return this.usersRepository.find();
+  async getAllUsers(): Promise<User[]> {
+    return await this.usersRepository.find();
   }
 
-  getUserById(id: string) {
+  async getUserById(id: string) {
     validateID(id);
-    return this.usersRepository.findOneBy({ id });
+    const findUser = await this.usersRepository.findOneBy({ id });
+    if (!findUser) throw new NotFoundException('ID doest not exist');
+    else return findUser;
   }
 
   async createUser(dto: CreateUserDto) {
@@ -58,6 +58,8 @@ export class UsersService {
       userToUpdate.updatedAt = Date.now();
       await this.usersRepository.save(userToUpdate);
       delete userToUpdate.password;
+      userToUpdate.createdAt = Number(userToUpdate.createdAt);
+      userToUpdate.updatedAt = Number(userToUpdate.updatedAt);
       return userToUpdate;
     } else {
       throw new NotFoundException('ID doest not exist');
