@@ -8,6 +8,7 @@ import { validateID } from '../utils/validateID';
 import { Artist } from './artist.entity';
 import { Artist as ArtistInterface } from './interfaces/artist.interface';
 import { Album } from '../album/album.entity';
+import { Track } from '../track/track.entity';
 
 @Injectable()
 export class ArtistService {
@@ -16,6 +17,8 @@ export class ArtistService {
     private artistRepository: Repository<Artist>,
     @InjectRepository(Album)
     private readonly albumRepository: Repository<Album>,
+    @InjectRepository(Track)
+    private readonly trackRepository: Repository<Track>,
   ) {}
 
   async getAllArtists() {
@@ -70,6 +73,19 @@ export class ArtistService {
         albumsToUpdate.map((album) => {
           album.artistId = null;
           return this.albumRepository.save(album);
+        }),
+      );
+    }
+
+    const trackToUpdate = await this.trackRepository.find({
+      where: { artistId: id },
+    });
+
+    if (trackToUpdate.length > 0) {
+      await Promise.all(
+        trackToUpdate.map((track) => {
+          track.artistId = null;
+          return this.trackRepository.save(track);
         }),
       );
     }

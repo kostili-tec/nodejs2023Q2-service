@@ -6,12 +6,15 @@ import { CreateAlbumDto } from './dto/create-album.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Album } from './album.entity';
 import { Repository } from 'typeorm';
+import { Track } from '../track/track.entity';
 
 @Injectable()
 export class AlbumService {
   constructor(
     @InjectRepository(Album)
     private albumRepository: Repository<Album>,
+    @InjectRepository(Track)
+    private trackRepository: Repository<Track>,
   ) {}
 
   async getAllAlbums() {
@@ -56,13 +59,19 @@ export class AlbumService {
     validateID(id);
     const deleteAlbum = await this.albumRepository.findOneBy({ id });
     if (!deleteAlbum) throw new NotFoundException('ID doest not exist');
-    else await this.albumRepository.delete({ id });
-  }
 
-  /*   setArtistIdToNull(artistId: string) {
-    const artistIndex = this.albums.findIndex(
-      (album) => album.artistId === artistId,
-    );
-    if (artistIndex >= 0) this.albums[artistIndex].artistId = null;
-  } */
+    const trackToUpdate = await this.trackRepository.find({
+      where: { albumId: id },
+    });
+    if (trackToUpdate.length > 0) {
+      await Promise.all(
+        trackToUpdate.map((track) => {
+          track.albumId = null;
+          return this.trackRepository.save(track);
+        }),
+      );
+    }
+
+    await this.albumRepository.delete({ id });
+  }
 }

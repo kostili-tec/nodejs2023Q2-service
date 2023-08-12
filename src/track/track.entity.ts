@@ -1,4 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Artist } from '../artist/artist.entity';
+import { Album } from '../album/album.entity';
 
 @Entity()
 export class Track {
@@ -16,4 +18,10 @@ export class Track {
 
   @Column()
   duration: number; // integer number
+
+  @ManyToOne(() => Artist, (artist) => artist.tracks)
+  artist: Artist;
+
+  @ManyToOne(() => Album, (album) => album.tracks)
+  album: Album;
 }
