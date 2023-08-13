@@ -14,10 +14,12 @@ import { Album } from './album/album.entity';
 import { AlbumModule } from './album/album.module';
 import { Track } from './track/track.entity';
 import { TrackModule } from './track/track.module';
+import { Favorites } from './favorites/favorites.entity';
+import { FavoritesModule } from './favorites/favorites.module';
 
 @Module({
-  controllers: [AppController, FavoritesController],
-  providers: [AppService, FavoritesService, SharedService],
+  controllers: [AppController],
+  providers: [AppService, SharedService],
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -26,7 +28,7 @@ import { TrackModule } from './track/track.module';
       username: 'postgres',
       password: 'root',
       database: 'rest-service-db',
-      entities: [User, Artist, Album, Track],
+      entities: [User, Artist, Album, Track, Favorites],
       synchronize: true,
     }),
     SharedModule,
@@ -34,6 +36,7 @@ import { TrackModule } from './track/track.module';
     ArtistModule,
     AlbumModule,
     TrackModule,
+    FavoritesModule,
   ],
 })
 export class AppModule {}
