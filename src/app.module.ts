@@ -1,37 +1,46 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersService } from './users/users.service';
-import { UsersController } from './users/users.controller';
-import { ArtistController } from './artist/artist.controller';
-import { ArtistService } from './artist/artist.service';
-import { AlbumService } from './album/album.service';
-import { AlbumController } from './album/album.controller';
-import { TrackService } from './track/track.service';
-import { TrackController } from './track/track.controller';
 import { FavoritesController } from './favorites/favorites.controller';
 import { FavoritesService } from './favorites/favorites.service';
 import { SharedService } from './shared/shared.service';
 import { SharedModule } from './shared/shared.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './users/user.entity';
+import { UsersModule } from './users/users.module';
+import { ArtistModule } from './artist/artist.module';
+import { Artist } from './artist/artist.entity';
+import { Album } from './album/album.entity';
+import { AlbumModule } from './album/album.module';
+import { Track } from './track/track.entity';
+import { TrackModule } from './track/track.module';
+import { Favorites } from './favorites/favorites.entity';
+import { FavoritesModule } from './favorites/favorites.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  controllers: [
-    AppController,
-    UsersController,
-    ArtistController,
-    AlbumController,
-    TrackController,
-    FavoritesController,
+  controllers: [AppController],
+  providers: [AppService, SharedService],
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: `.${process.env.NODE_ENV}.env`,
+    }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.POSTGRES_HOST,
+      port: Number(process.env.POSTGRES_PORT),
+      username: process.env.POSTGRES_USER,
+      password: process.env.POSTGRES_PASSWORD,
+      database: process.env.POSTGRES_DB,
+      entities: [User, Artist, Album, Track, Favorites],
+      synchronize: true,
+    }),
+    SharedModule,
+    UsersModule,
+    ArtistModule,
+    AlbumModule,
+    TrackModule,
+    FavoritesModule,
   ],
-  providers: [
-    AppService,
-    UsersService,
-    ArtistService,
-    AlbumService,
-    TrackService,
-    FavoritesService,
-    SharedService,
-  ],
-  imports: [SharedModule],
 })
 export class AppModule {}

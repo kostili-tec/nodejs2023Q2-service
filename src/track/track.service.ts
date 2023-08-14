@@ -1,33 +1,35 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { SharedService } from '../shared/shared.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 import { validateID } from '../utils/validateID';
 import { CreateTrackDto } from './dto/create-track.dto';
-import { Track } from './interfaces/track.interfase';
+import { Track as TrackInterface } from './interfaces/track.interfase';
+import { Track } from './track.entity';
 
 @Injectable()
 export class TrackService {
   constructor(
-    @Inject(SharedService)
-    private readonly sharedService: SharedService,
+    @InjectRepository(Track)
+    private readonly trackRepository: Repository<Track>,
   ) {}
 
-  getAllTracks() {
-    return this.sharedService.getAllTracks();
+  async getAllTracks() {
+    return await this.trackRepository.find();
   }
 
-  getTrackById(id: string) {
+  async getTrackById(id: string) {
     validateID(id);
-    const track = this.sharedService.getTrackById(id);
+    const track = await this.trackRepository.findOneBy({ id });
     if (!track) throw new NotFoundException('ID doest not exist');
     else return track;
   }
 
-  createTrack(dto: CreateTrackDto) {
+  async createTrack(dto: CreateTrackDto) {
     const { artistId, albumId } = dto;
     const id = uuidv4();
-    const newTrack: Track = {
+    const newTrack: TrackInterface = {
       ...dto,
       id,
     };
@@ -37,21 +39,28 @@ export class TrackService {
     if (!albumId) {
       newTrack.albumId = null;
     }
-    this.sharedService.addTrack(newTrack);
+    await this.trackRepository.insert(newTrack);
     return newTrack;
   }
 
-  updateTrack(id: string, dto: CreateTrackDto) {
+  async updateTrack(id: string, dto: CreateTrackDto) {
     validateID(id);
-    const updatedTrack = this.sharedService.updateTrack(id, dto);
-    if (updatedTrack) return updatedTrack;
-    else throw new NotFoundException('ID doest not exist');
+    const updatedTrack = await this.trackRepository.findOneBy({ id });
+    if (updatedTrack) {
+      const { albumId, artistId, duration, name } = dto;
+      updatedTrack.albumId = albumId;
+      updatedTrack.artistId = artistId;
+      updatedTrack.duration = duration;
+      updatedTrack.name = name;
+      await this.trackRepository.save(updatedTrack);
+      return updatedTrack;
+    } else throw new NotFoundException('ID doest not exist');
   }
 
-  deleteTrack(id: string) {
+  async deleteTrack(id: string) {
     validateID(id);
-    const deleteTrack = this.sharedService.deleteTrack(id);
+    const deleteTrack = await this.trackRepository.findOneBy({ id });
     if (!deleteTrack) throw new NotFoundException('ID doest not exist');
-    else this.sharedService.checkFavsTrack(id);
+    else await this.trackRepository.remove(deleteTrack);
   }
 }
