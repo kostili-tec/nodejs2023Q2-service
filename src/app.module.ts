@@ -16,18 +16,22 @@ import { Track } from './track/track.entity';
 import { TrackModule } from './track/track.module';
 import { Favorites } from './favorites/favorites.entity';
 import { FavoritesModule } from './favorites/favorites.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   controllers: [AppController],
   providers: [AppService, SharedService],
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: `.${process.env.NODE_ENV}.env`,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'root',
-      database: 'rest-service-db',
+      host: process.env.POSTGRES_HOST,
+      port: Number(process.env.POSTGRES_PORT),
+      username: process.env.POSTGRES_USER,
+      password: process.env.POSTGRES_PASSWORD,
+      database: process.env.POSTGRES_DB,
       entities: [User, Artist, Album, Track, Favorites],
       synchronize: true,
     }),
