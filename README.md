@@ -10,7 +10,7 @@ To get started with the project, follow these steps:
    ```
 2. Switch branch 
    ```
-   git switch develop
+   git switch develop-part2
    ```
 3. Install dependencies:
    ```
@@ -21,8 +21,17 @@ To get started with the project, follow these steps:
 
 To run the application, follow the instructions below:
 
-1. To check the "PORT value is stored into .env file" feature, you need to create `.development.env` and `.production.env` files.
-2. In each file, specify the desired port number, for example: `PORT=4000` (default).
+1. To check the "Variables used for connection to database to be stored in `.env`" feature, you need to create `.development.env` and `.production.env` files.
+2. In each file, specify the desired variables, for example: 
+```
+PORT=4000
+
+POSTGRES_HOST=localhost
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=root
+POSTGRES_DB=rest-service-db
+POSTGRES_PORT=5432
+```
 
 After completing the steps above, you can start the application using either of the following commands:
 - For production mode: `npm start`
